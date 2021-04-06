@@ -49,3 +49,47 @@ if __name__ == '__main__':
     # print(res)
     for i in res:
         print(i)
+
+# —————————————————————————常规功能版本———————————————————————————————————————————————————
+
+'''
+# —————————————————————————优化功能版本———————————————————————————————————————————————————
+def getExcelData(excelDir, sheetName, caseName,*args):  # args：元组
+    # 1- 定义excel路径
+    # 2- 打开excel。formatting_info=True 保持excel样式
+    workBook = xlrd.open_workbook(excelDir, formatting_info=True)  # workbook是一个xx.xls文件对象
+    # 3- 具体操作excel文件中的某一个sheet
+    # 通过sheetName获取所需的sheet表
+    workSheet = workBook.sheet_by_name(sheetName)
+    # 4- 读取第一行数据
+    print(workSheet.row_values(0))  # ===>['用例编号', '模块', '接口名称', '优先级', '标题', 'URL', '前置条件', '请求方式', '请求头', '请求参数', '预期结果', '响应预期结果', '实际结果']
+    # 4- 读取第一列数据
+    print(workSheet.col_values(0))  # ['用例编号', 'Login001', 'Login002', 'Login003', 'Login004', 'Login005', 'Login006']
+    colIdex =[]   # 存放用户需要获取列名称对应的列编号
+
+    #—-----------------将用户输入列名称转化成列编号----------------------
+    for i in args: # 遍历元组
+        # 列名称在sheet中第0行
+        # 通过列名称的值，获取对应的下标
+        colIdex.append(workSheet.row_values(0).index(i))
+    print("列名称对应的下标>>>",colIdex)
+    #-------------------将用户输入列名称转化成列编号---------------------
+
+    idx=0 # 初始化行的值0
+    resList=[]  # 定义一个列表，存放从sheet中逐行读取出的数据
+    for one in workSheet.col_values(0):  # 对第一列数据进行遍历操作，筛选有效用例
+        if caseName in one: # 说明用例有效
+            getColData =[]
+            # 读取sheet中某个单元格数据
+            # workSheet.cell(行号，列号).value
+            for num in colIdex:
+                res=workSheet.cell(idx,num).value  # 获取单元格数据
+                getColData.append(res)  # 把用户需要读取的列数据，append至一个列表
+            resList.append(getColData)
+        idx += 1 # 行编号遍历递增
+    return  resList
+import pprint
+if __name__ == '__main__':
+    res = getExcelData('../data/LoginInterfaceTestCase.xls','登录模块','Login',"用例编号","请求参数",'响应预期结果')
+    pprint.pprint(res)
+'''
