@@ -17,7 +17,7 @@
         a.获取workbook对象  b.从表中对应对应的worksheet对象(某个子sheet)  c.获取某个sheet中的行/列、单元数据
 '''
 import  xlrd
-
+"""
 # —————————————————————————常规功能版本———————————————————————————————————————————————————
 
 def getExcelData(excelDir, sheetName, caseName):
@@ -51,8 +51,8 @@ if __name__ == '__main__':
         print(i)
 
 # —————————————————————————常规功能版本———————————————————————————————————————————————————
+"""
 
-'''
 # —————————————————————————优化功能版本———————————————————————————————————————————————————
 def getExcelData(excelDir, sheetName, caseName,*args):  # args：元组
     # 1- 定义excel路径
@@ -62,9 +62,9 @@ def getExcelData(excelDir, sheetName, caseName,*args):  # args：元组
     # 通过sheetName获取所需的sheet表
     workSheet = workBook.sheet_by_name(sheetName)
     # 4- 读取第一行数据
-    print(workSheet.row_values(0))  # ===>['用例编号', '模块', '接口名称', '优先级', '标题', 'URL', '前置条件', '请求方式', '请求头', '请求参数', '预期结果', '响应预期结果', '实际结果']
+    # print(workSheet.row_values(0))  # ===>['用例编号', '模块', '接口名称', '优先级', '标题', 'URL', '前置条件', '请求方式', '请求头', '请求参数', '预期结果', '响应预期结果', '实际结果']
     # 4- 读取第一列数据
-    print(workSheet.col_values(0))  # ['用例编号', 'Login001', 'Login002', 'Login003', 'Login004', 'Login005', 'Login006']
+    # print(workSheet.col_values(0))  # ['用例编号', 'Login001', 'Login002', 'Login003', 'Login004', 'Login005', 'Login006']
     colIdex =[]   # 存放用户需要获取列名称对应的列编号
 
     #—-----------------将用户输入列名称转化成列编号----------------------
@@ -72,7 +72,7 @@ def getExcelData(excelDir, sheetName, caseName,*args):  # args：元组
         # 列名称在sheet中第0行
         # 通过列名称的值，获取对应的下标
         colIdex.append(workSheet.row_values(0).index(i))
-    print("列名称对应的下标>>>",colIdex)
+    # print("列名称对应的下标>>>",colIdex)
     #-------------------将用户输入列名称转化成列编号---------------------
 
     idx=0 # 初始化行的值0
@@ -91,5 +91,4 @@ def getExcelData(excelDir, sheetName, caseName,*args):  # args：元组
 import pprint
 if __name__ == '__main__':
     res = getExcelData('../data/LoginInterfaceTestCase.xls','登录模块','Login',"用例编号","请求参数",'响应预期结果')
-    pprint.pprint(res)
-'''
+    # pprint.pprint(res)
