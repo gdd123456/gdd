@@ -54,6 +54,7 @@ if __name__ == '__main__':
 """
 
 # —————————————————————————优化功能版本———————————————————————————————————————————————————
+import json
 def getExcelData(excelDir, sheetName, caseName,*args):  # args：元组
     # 1- 定义excel路径
     # 2- 打开excel。formatting_info=True 保持excel样式
@@ -83,12 +84,15 @@ def getExcelData(excelDir, sheetName, caseName,*args):  # args：元组
             # 读取sheet中某个单元格数据
             # workSheet.cell(行号，列号).value
             for num in colIdex:
-                res=workSheet.cell(idx,num).value  # 获取单元格数据
+                # res = workSheet.cell(idx, num).value
+                res=json.loads(workSheet.cell(idx,num).value)  # 获取单元格数据（格式为字符串）。号外号外：如果不进行转化的话，test_login执行用例全部会报错哦
+                # 漏洞：workSheet.cell(idx,num).value前提是json格式。否则无法转化
                 getColData.append(res)  # 把用户需要读取的列数据，append至一个列表
             resList.append(getColData)
         idx += 1 # 行编号遍历递增
     return  resList
 import pprint
 if __name__ == '__main__':
-    res = getExcelData('../data/LoginInterfaceTestCase.xls','登录模块','Login',"用例编号","请求参数",'响应预期结果')
-    # pprint.pprint(res)
+    # res = getExcelData('../data/LoginInterfaceTestCase.xls','登录模块','Login','用例编号',"请求参数",'响应预期结果')
+    res = getExcelData('../data/LoginInterfaceTestCase.xls', '登录模块', 'Login',  "请求参数", '响应预期结果')
+    pprint.pprint(res)

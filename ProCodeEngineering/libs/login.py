@@ -32,4 +32,4 @@ class Login:
             return resp.json()
 if __name__ == '__main__':
     res = Login().login({"username": "th0336", "password": "53339"},getToken=True)
-    # print(res)
+    print(res)
