@@ -64,14 +64,16 @@ if __name__ == '__main__':
     # 遇到问题：运行了6个用例，但报告里面有12个用例。重复显示
     # 解决方案：
     #     1- 上一次运行有报告文件
-    print(os.listdir('../report/tmp'))  # 列出这个路径下文件
-    # for one in os.listdir('../report/tmp'): # one是每一个文件
-        # print(one)
-        # if '.json' in one: # 以后有环境配置文件在里面，所以做了判断
-        #     os.remove(f'../report/tmp/{one}')
+    # print(os.listdir('../report/tmp'))  # 列出这个路径下文件
+    try:
+        for one in os.listdir('../report/tmp'): # one是每一个文件
+            # print(one)
+            if '.json' in one: # 以后有环境配置文件在里面，所以做了判断
+                os.remove(f'../report/tmp/{one}')
+    except:
+        print('第一次运行pytest.main()')
 
-        
-    
+
 
     # '--alluredir','../report/tmp'   报告需要的文件存放路径
     pytest.main(['test_login.py', '-s', '--alluredir', '../report/tmp'])

@@ -53,7 +53,8 @@ if __name__ == '__main__':
 # —————————————————————————常规功能版本———————————————————————————————————————————————————
 """
 
-# —————————————————————————优化功能版本———————————————————————————————————————————————————
+'''
+# —————————————————————————优化功能版本V1.0———————————————————————————————————————————————————
 import json
 def getExcelData(excelDir, sheetName, caseName,*args):  # args：元组
     # 1- 定义excel路径
@@ -95,4 +96,87 @@ import pprint
 if __name__ == '__main__':
     # res = getExcelData('../data/LoginInterfaceTestCase.xls','登录模块','Login','用例编号',"请求参数",'响应预期结果')
     res = getExcelData('../data/LoginInterfaceTestCase.xls', '登录模块', 'Login',  "请求参数", '响应预期结果')
+    pprint.pprint(res)
+'''
+
+
+# —————————————————————————代码优化V1.1———————————————————————————————————————————————————
+'''
+优化需求：
+    1- 如果我们需要获取数据不是json格式的列数据，代码会报错。（如登记接口URL的用例）
+        json.loads(workSheet.cell(idx,num).value) 
+    2- 数据驱动时候，一个登陆的接口用例sheet，全表用例数据读取。需求点：能否只执行某几条用例？连续用例编号？单个不连续用例
+        方案：a. pytest数据驱动是靠一个@pytest.mark.parametrize('参数的变量名',实际需要传入的参数)
+             b. 只需要把挑选的用例读取出来即可
+             c. 分类： all 所有用例、001-004 连续一段、001 003 005 不连续
+                       复杂的场景['001','005-008','010']
+'''
+# 判断是否是json格式的方法2 （注：方法1比较极端，判断左右两边是否有{ 、}。如请求参数、响应预期结果）
+import json
+def is_json(s):
+    try:
+        json.loads(s)  # json转化字典
+    except ValueError:
+        return False    # 不是json
+    return  True     # 是jasn
+
+def getExcelData(excelDir, sheetName, caseName,*args,runCase=['all']):
+    '''
+    :param excelDir:
+    :param sheetName:
+    :param caseName:
+    :param args:元组
+    :param runCase:挑选的运行用例，默认是all
+    :return:
+    '''
+
+    workBook = xlrd.open_workbook(excelDir, formatting_info=True)  # workbook是一个xx.xls文件对象
+    workSheet = workBook.sheet_by_name(sheetName)
+    colIdex =[]   # 存放用户需要获取列名称对应的列编号
+
+    #—-----------------将用户输入列名称转化成列编号----------------------
+    for i in args: # 遍历元组
+        # 列名称在sheet中第0行
+        # 通过列名称的值，获取对应的下标
+        colIdex.append(workSheet.row_values(0).index(i))
+    # print("列名称对应的下标>>>",colIdex)
+    #-------------------将用户输入列名称转化成列编号---------------------
+
+    runList=[]  #最后的运行列表
+    if runCase[0]=='all': # 全部运行  runCase是用户传进来的运行列表
+        runList=workSheet.col_values(0)  # 第一列所有数据
+    else:  # 如果不是all
+        # 连续的  003-007
+        # 不连续的  001  005  007
+        for one  in runCase:
+            if '-'  in  one:  # 连续的'003-007'
+                start,end=one.split('-')  # 获取连续用例编号的头尾
+                for i in range(int(start),int(end)+1):   # for 003 004 005 006 007
+                    runList.append(caseName+f'{i:0>3}')
+            else:
+                runList.append(caseName+f'{i:0>3}')  # Login001
+
+    idx=0 # 初始化行的值0
+    resList=[]  # 定义一个列表，存放从sheet中逐行读取出的数据
+    for one in workSheet.col_values(0):  # 对第一列数据进行遍历操作，筛选有效用例
+        if caseName in one and one in runList: # 说明用例有效
+            getColData =[]
+            # 读取sheet中某个单元格数据
+            # workSheet.cell(行号，列号).value
+            for num in colIdex:
+                # res = workSheet.cell(idx, num).value
+                # 如果是json字符串，就转化成字典。不是json格式，就不转化
+                res =workSheet.cell(idx,num).value  # excel读出来的都是字符串格式
+                # if res[0]=='{' and res[-1]=='}':  判断json格式1
+                if is_json(res):
+                    res=json.loads(workSheet.cell(idx,num).value)
+                getColData.append(res)  # 把用户需要读取的列数据，append至一个列表
+            resList.append(getColData)
+        idx += 1 # 行编号遍历递增
+    return  resList
+
+import pprint
+if __name__ == '__main__':
+    # res = getExcelData('../data/LoginInterfaceTestCase.xls','登录模块','Login','用例编号',"请求参数",'响应预期结果')
+    res = getExcelData('../data/LoginInterfaceTestCase.xls', '登录模块', 'Login',  'URL','请求参数',runCase=['001','002-004','006'])
     pprint.pprint(res)
