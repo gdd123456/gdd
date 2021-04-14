@@ -44,37 +44,53 @@ class Shop:
         1- 导入测试用例的店铺id目前是硬编码。——需要动态关联shop_list接口
         2- 导入测试用例的图片信息目前是硬编码。——需要动态关联file_upload接口
     """
-    def shop_update(self,inData,shopId,imageInfo):
-        url=f"{HOST}/shopping/updatemyshop"
-        # 获取动态值——更新值
-
-
-
-
-
-
+    def shop_update(self,inData,shopID,imageInfo):
+        url=f'{HOST}/shopping/updatemyshop'
+        # 获取动态值，更新excel用例中原本的静态值
+        inData['id']=shopID
+        inData['image_path']=imageInfo
+        inData['image']=f'file/getImgStream?fileName={imageInfo}'
+        resp=requests.post(url,data=inData,headers=self.header)
+        return resp.json()
 
     # 3. 删除店铺  admin，系统的管理员平台操作
     # 4. 增加店铺  admin，系统的管理员平台操作
-
-
-
 
 from libs.login import Login
 import pprint
 if __name__ == '__main__':
     # 1. 登录->获取token
     token = Login().login({"username": "th0336", "password": "53339"},getToken=True)
+
     # 创建示例   实例=类名()
     # 实例.实例方法
     shopObject=Shop(token)   # 店铺实例
 
     # 2. 列出店铺接口调用
-    # shopRes=shopObject.shop_list({"page":1,"limit":20})
-    # pprint.pprint(shopRes)
+    shopRes=shopObject.shop_list({"page":1,"limit":20})
+    pprint.pprint(shopRes)
+    shopId=shopRes['data']['records'][0]['id']   # 编辑店铺时，需获取店铺id
+    print(shopId)
 
-    # 文件上传接口验证
+    # 3. 文件上传接口验证
     fileRes=shopObject.file_upload('picture.png','../data/picture.png','image/png')
-    print(fileRes)
+    pprint.pprint(fileRes)
+    print(fileRes['data']['realFileName'])   # 获取文件名称
 
+    # 更新店铺接口
+    info={
+            "name": "星巴克新建店",
+            "address": "上海市静安区秣陵街道303号路",
+            "id": "3269",
+            "Phone": "13176876632",
+            "rating": "6.0",
+            "recent_order_num": 100,
+            "category": "快餐便当/简餐",
+            "description": "满30减5，满60减8",
+            "image_path": "b8be9abc-a85f-4b5b-ab13-52f48538f96c.png",
+            "image": "http://121.41.14.39:8082/file/getImgStream?fileName=b8be9abc-a85f-4b5b-ab13-52f48538f96c.png"
+         }
+
+    res=shopObject.shop_update(info, shopId, fileRes['data']['realFileName'])
+    print(res)
 
