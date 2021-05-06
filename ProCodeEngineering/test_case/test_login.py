@@ -39,7 +39,7 @@ from tools.excelControl import getExcelData
 import pytest
 import os
 import allure_pytest
-import pytest_html
+# import pytest_html
 class TestLogin:  # 定义测试类
     # 测试方法
     # 数据驱动——参数化——读取用例数据
